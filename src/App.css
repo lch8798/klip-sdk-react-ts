@@ -1,0 +1,31 @@
+.App {
+    text-align: center;
+}
+
+.section {
+    margin: 20px 0;
+}
+
+.card {
+    padding: 30px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.card > img {
+    width: 150px;
+}
+
+.card > .description {
+    padding: 10px 25px;
+    font-size: 13px;
+    color: #aaa;
+}
+
+.card > .attributes > p {
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.card > button {
+    margin: 20px 0 0 0;
+}
