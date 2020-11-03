@@ -4,6 +4,7 @@
 
 -   Login with Kakao Klip (Get Address)
 -   Fetch Cards By Contract Address
+-   Send Card
 
 ### 1. create d.ts for declare type
 

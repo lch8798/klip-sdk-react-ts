@@ -6,7 +6,7 @@ import './App.css';
 
 import Card from './Card';
 
-const ON_LOG_SERVER = false;
+const ON_LOG_SERVER = true;
 
 const CONTRACT: { [type in any]: string } = {
   cryptoSwordAndMagic: '0x53571b1eb0c1bed4e06be67e78a1977cc0bd9b74',
@@ -45,6 +45,7 @@ type Card = {
 }
 
 type ServiceInfo = {
+  contract: string;
   name: string;
   symbol_img: string;
   cards: Card[];
@@ -59,7 +60,7 @@ export default function App() {
     if(Boolean(userAddress)) getCards();
   }, [userAddress]);
 
-  async function requestAuth() {
+  async function confirmAuth() {
     const resultAuth = await prepare.auth({ bappName: 'Test BApp' });
     log(resultAuth);
 
@@ -67,7 +68,7 @@ export default function App() {
     setRequests({ ...requests, auth: resultAuth.request_key });
   }
   
-  async function fetchAuth() {
+  async function fetchResultAuth() {
     try {
       if(!Boolean(requests.auth)) throw 'invalid request';
   
@@ -89,10 +90,47 @@ export default function App() {
       const newInfo: ServiceInfo & { code: number, err: string } = await getCardList({ contract: CONTRACT[key], eoa: userAddress, cursor: '' });
       if(Boolean(newInfo.err)) continue;
 
-      newInfos.push(newInfo);
+      newInfos.push({...newInfo, contract: CONTRACT[key]});
     }
 
     setServiceInfos(newInfos);
+  }
+  
+  async function confirmSendCard(bappName: string, from: string, to: string, id: number, contract: string): Promise<boolean> {
+    try {
+      const res = await prepare.sendCard({ bappName, from, to, id, contract, successLink: '', failLink: '' });
+      log(res);
+
+      if(res.err) throw res.err;
+
+      request(res.request_key, null);
+      setRequests({ ...requests, sendCard: res.request_key });
+      return true;
+    } catch(e) {
+      console.error(e);
+      log(e);
+    }
+
+    return false;
+  }
+
+  async function fetchResultSendCard() {
+    try {
+      if(!Boolean(requests.sendCard)) throw 'invalid request';
+  
+      const result = await getResult(requests.sendCard);
+      log(result);
+
+      if(result.status == 'completed') {
+        alert('Success Send');
+        setRequests({ ...requests, sendCard: null });
+        getCards();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+
+    return false;
   }
 
   return (
@@ -104,17 +142,17 @@ export default function App() {
         {/* not logined */}
         {!Boolean(userAddress) && (
           <>
-            {/* Request Klip Login */}
+            {/* Confirm Klip Login */}
             {!Boolean(requests.auth) && (
               <div className={'section'}>
-                <button onClick={requestAuth}>Request Klip Login</button>
+                <button onClick={confirmAuth}>Confirm Klip Login</button>
               </div>
             )}
 
             {/* Check Login Respones */}
             {Boolean(requests.auth) && (
               <div className={'section'}>
-                <button onClick={fetchAuth}>Success Login</button>
+                <button onClick={fetchResultAuth}>Success Login</button>
               </div>
             )}
           </>
@@ -136,7 +174,12 @@ export default function App() {
                   {/* Cards By Service */}
                   <div>
                     {info.cards.map((card) => (
-                      <Card key={`${info.name}:${card.card_id}`} card={card} />
+                      <Card 
+                        key={`${info.name}:${card.card_id}`} 
+                        card={card}
+                        confirmSendCard={(to: string) => confirmSendCard('Test BApp', userAddress, to, card.card_id, info.contract)}
+                        fetchResultSendCard={fetchResultSendCard}
+                      />
                     ))}
                   </div>
                 </div>
