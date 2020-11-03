@@ -131,7 +131,7 @@ export default function App() {
                 <div key={info.name}>
 
                   {/* Service Title */}
-                  <h4 style={{ padding: '20px 0', backgroundColor: '#e9a107', color: '#fff' }}>{info.name}</h4>
+                  <h4 style={{ position: 'sticky', top: 0, left: 0, padding: '20px 0', backgroundColor: '#e9a107', color: '#fff' }}>{info.name}</h4>
 
                   {/* Cards By Service */}
                   <div>
