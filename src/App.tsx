@@ -6,7 +6,7 @@ import './App.css';
 
 import Card from './Card';
 
-const ON_LOG_SERVER = true;
+const ON_LOG_SERVER = false;
 
 const CONTRACT: { [type in any]: string } = {
   cryptoSwordAndMagic: '0x53571b1eb0c1bed4e06be67e78a1977cc0bd9b74',
