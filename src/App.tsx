@@ -96,7 +96,7 @@ export default function App() {
     setServiceInfos(newInfos);
   }
   
-  async function confirmSendCard(bappName: string, from: string, to: string, id: number, contract: string): Promise<boolean> {
+  async function confirmSendCard(bappName: string, from: string, to: string, id: string, contract: string): Promise<boolean> {
     try {
       const res = await prepare.sendCard({ bappName, from, to, id, contract, successLink: '', failLink: '' });
       log(res);
@@ -177,7 +177,7 @@ export default function App() {
                       <Card 
                         key={`${info.name}:${card.card_id}`} 
                         card={card}
-                        confirmSendCard={(to: string) => confirmSendCard('Test BApp', userAddress, to, card.card_id, info.contract)}
+                        confirmSendCard={(to: string) => confirmSendCard('Test BApp', userAddress, to, String(card.card_id), info.contract)}
                         fetchResultSendCard={fetchResultSendCard}
                       />
                     ))}
