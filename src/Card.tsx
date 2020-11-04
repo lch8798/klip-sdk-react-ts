@@ -51,6 +51,15 @@ export default function Card(props: PropsType) {
     setTrySend(true);
   }
 
+  async function handleFetchResultSendCard() {
+    const result = await fetchResultSendCard();
+
+    if(result == false) {
+      alert('Failed Send');
+      setTrySend(false);
+    }
+  }
+
   if(!Boolean(data)) {
     return (
       <div className={'card'}>
@@ -69,7 +78,7 @@ export default function Card(props: PropsType) {
       </div>
 
       {!trySend && <button onClick={handleSendCard}>Confirm Send</button>}
-      {trySend && <button onClick={fetchResultSendCard}>Check Send Result</button>}
+      {trySend && <button onClick={handleFetchResultSendCard}>Check Send Result</button>}
     </div>
   );
 }

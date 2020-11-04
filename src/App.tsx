@@ -125,6 +125,8 @@ export default function App() {
         alert('Success Send');
         setRequests({ ...requests, sendCard: null });
         getCards();
+
+        return true;
       }
     } catch(e) {
       console.error(e);
