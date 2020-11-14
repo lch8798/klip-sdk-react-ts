@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { prepare, request, getResult, getCardList } from 'klip-sdk';
 import axios from 'axios';
 
@@ -6,7 +6,7 @@ import './App.css';
 
 import Card from './Card';
 
-const ON_LOG_SERVER = false;
+const ON_LOG_SERVER = true;
 
 const CONTRACT: { [type in any]: string } = {
   cryptoSwordAndMagic: '0x53571b1eb0c1bed4e06be67e78a1977cc0bd9b74',
@@ -51,13 +51,47 @@ type ServiceInfo = {
   cards: Card[];
 }
 
+function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef<() => void | null>();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  });
+
+  // Set up the interval.
+  useEffect(() => {
+
+    function tick() {
+      if (typeof savedCallback?.current !== 'undefined') {
+        savedCallback?.current();
+      }
+    }
+
+    if (delay !== null) {
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
+
 export default function App() {
   const [requests, setRequests] = useState<RequestStorage>(DEFAULT_REQUEST_STORAGE);
   const [userAddress, setUserAddress] = useState<string>('');
   const [serviceInfos, setServiceInfos] = useState<ServiceInfo[]>([]);
 
+  useInterval(() => {
+    fetchResultAuth();
+  }, 3000);
+
   useEffect(() => {
     if(Boolean(userAddress)) getCards();
+
+    window.addEventListener('focus', function() {
+      log(`focus`);
+      fetchResultAuth();
+    });
+    window.addEventListener('blur', (e) => log(`blur`));
   }, [userAddress]);
 
   async function confirmAuth() {
@@ -70,6 +104,7 @@ export default function App() {
   
   async function fetchResultAuth() {
     try {
+      log(requests);
       if(!Boolean(requests.auth)) throw 'invalid request';
   
       const result = await getResult(requests.auth);
